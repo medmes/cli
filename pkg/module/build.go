@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/kyma-project/cli/pkg/module/git"
 	"github.com/mandelsoft/vfs/pkg/projectionfs"
 	"github.com/mandelsoft/vfs/pkg/vfs"
 	"github.com/open-component-model/ocm/pkg/common/accessobj"
@@ -63,9 +62,6 @@ func CreateArchive(fs vfs.FileSystem, path string, def *Definition) (*comparch.C
 		cd.Provider = v1.Provider{Name: "kyma-project.io", Labels: v1.Labels{*builtByCLI}}
 	}
 
-	if err := addSources(ctx, cd, def); err != nil {
-		return nil, err
-	}
 	cd.ComponentSpec.SetName(def.Name)
 	cd.ComponentSpec.SetVersion(def.Version)
 
@@ -76,19 +72,4 @@ func CreateArchive(fs vfs.FileSystem, path string, def *Definition) (*comparch.C
 	}
 
 	return archive, nil
-}
-
-func addSources(ctx cpi.Context, cd *ocm.ComponentDescriptor, def *Definition) error {
-	src, err := git.Source(ctx, def.Source, def.Repo, def.Version)
-	if err != nil {
-		return err
-	}
-
-	if idx := cd.GetSourceIndex(&src.SourceMeta); idx < 0 {
-		cd.Sources = append(cd.Sources, *src)
-	} else {
-		cd.Sources[idx] = *src
-	}
-
-	return nil
 }
